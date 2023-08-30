@@ -84,8 +84,6 @@ def getewf_Info(flist):
 def main():
     try:
         # Read the command line arguments:
-        print(len(sys.argv))
-        print(sys.argv[1])
         arg_count = len(sys.argv)
         if arg_count < 2:
             print("Must provide the name of the first segment...")
