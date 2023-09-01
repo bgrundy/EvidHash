@@ -17,7 +17,7 @@ anyway.
 
 ## Functions
 
-There are three main functions that do the work here.  All three take
+There are four main functions that do the work here.  All four take
 `flist` as an argument.  `flist` is simply a python list of the EWF
 segments being processed.  The list is created using the `pyewf`
 library `glob` function - so only the first segment of the EWF set needs
@@ -35,3 +35,9 @@ This function provides a list of all the sizes (in bytes) of the container files
 
 This function obtains the stored hash and media size of the data
 contained in the EWF set.
+
+### `calcewf_Hash()`
+
+This function read the data stored in the EWF file(s) and hashes that
+data for comparison with the stored hash.  This provides a verification
+much like `ewfverify`.

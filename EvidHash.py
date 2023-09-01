@@ -10,14 +10,14 @@
 #   - Only the first file of a set is required 
 #   - The script currently works only on EWF files
 # Changes:
-# DONE:
-# TODO:
+#   - 0.2: Added verification of data stored in EWF files
 # REQUIRES:
 #   - hashlib
 #   - pyewf
 #   - tqdm (for progress bar)
+#   - termcolor (for verification message)
 
-Version = "0.1"
+Version = "0.2"
 
 #####################################
 #  Module imports                   #
@@ -26,6 +26,7 @@ import sys
 import pyewf
 import hashlib
 from tqdm import tqdm
+from termcolor import colored
 from datetime import datetime
 
 ################################################################################
@@ -62,20 +63,41 @@ def getSize(flist):
         sys.exit(1)
     return szlist
 
-# Get the media size and hash of the data contained in the EWF file:
+# Get the media size and hash recorded in the EWF file:
 def getewf_Info(flist):
     try:
         evid_obj=pyewf.handle()
         # Open the EWF files:
         evid_obj.open(flist)
         # Read the stored hash (data):
-        hash=evid_obj.get_hash_value('MD5')
+        stored_hash=evid_obj.get_hash_value('MD5')
         # Read the stored media size:
         size=evid_obj.get_media_size()
+        # Close the EWF files:
+        evid_obj.close()
     except:
         print("Unable to parse EWF files...")
         sys.exit(1)
-    return hash,size
+    return stored_hash,size
+
+# Calculate the hash of the data stored in the EWF files:
+def calcewf_Hash(flist):
+    try:
+        evid_obj=pyewf.handle()
+        # Open the EWF files:
+        evid_obj.open(flist)
+        # Read the data from the EWF files:
+        sz=evid_obj.get_media_size()
+        data=[evid_obj.read(sz)]
+        # Hash the data from the EWF files:
+        for data in tqdm(data):
+            data_hash=hashlib.md5(data).hexdigest()
+        # Close the EWF files:
+        evid_obj.close()
+    except:
+        print("Unable to parse EWF files...")
+        sys.exit(1)
+    return data_hash
 
 ################################################################################
 #   Main Program                                                               #
@@ -104,7 +126,9 @@ def main():
         md_list = getHash(flist)
         sz_list = getSize(flist)
         print("Collecting EWF info...")
-        ewf_hash,ewf_sz = getewf_Info(flist)    
+        ewf_stor_hash,ewf_sz = getewf_Info(flist)    
+        print("\nCalculating the hash of the data...")
+        ewf_data_hash = calcewf_Hash(flist)
         endtime = datetime.strftime(datetime.now(),\
                        format='%b %d, %Y %H:%M:%S')
         # Print the output:
@@ -116,8 +140,14 @@ def main():
         print("Container File Sizes:")
         for size in sz_list:
             print('\t',size,"bytes")
-        print("\nEWF stored MD5 hash: ", ewf_hash)
         print("EWF stored media size: ", ewf_sz, "bytes")
+        print("\nEWF stored MD5 hash:\t ", ewf_stor_hash)
+        print("EWF data MD5 hash:\t ", ewf_data_hash)
+        if ewf_stor_hash == ewf_data_hash:
+            print(colored("Hash Match:  EWF files VERIFIED","green"))
+        else:
+            print(colored("HASH MISMATCH: Data error or corruption!",
+                          "red"))
         print("\nEnd: ", endtime)
         sys.exit(0)
 
