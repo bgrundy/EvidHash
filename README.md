@@ -38,6 +38,6 @@ contained in the EWF set.
 
 ### `calcewf_Hash()`
 
-This function read the data stored in the EWF file(s) and hashes that
+This function reads the data stored in the EWF file(s) and hashes that
 data for comparison with the stored hash.  This provides a verification
 much like `ewfverify`.
