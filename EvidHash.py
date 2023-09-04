@@ -17,7 +17,7 @@
 #   - tqdm (for progress bar)
 #   - termcolor (for verification message)
 
-Version = "0.2"
+Version = "0.3"
 
 #####################################
 #  Module imports                   #
@@ -81,13 +81,13 @@ def getewf_Info(flist):
     return stored_hash,size
 
 # Calculate the hash of the data stored in the EWF files:
-def calcewf_Hash(flist):
+def calcewf_Hash(flist, sz):
     try:
         evid_obj=pyewf.handle()
         # Open the EWF files:
         evid_obj.open(flist)
-        # Read the data from the EWF files:
-        sz=evid_obj.get_media_size()
+        # Read the data from the EWF files into an iterable
+        # so we can use tqdm for progress during hash
         data=[evid_obj.read(sz)]
         # Hash the data from the EWF files:
         for data in tqdm(data):
@@ -128,7 +128,7 @@ def main():
         print("Collecting EWF info...")
         ewf_stor_hash,ewf_sz = getewf_Info(flist)    
         print("\nCalculating the hash of the data...")
-        ewf_data_hash = calcewf_Hash(flist)
+        ewf_data_hash = calcewf_Hash(flist, ewf_sz)
         endtime = datetime.strftime(datetime.now(),\
                        format='%b %d, %Y %H:%M:%S')
         # Print the output:
