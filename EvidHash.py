@@ -10,6 +10,7 @@
 #   - Only the first file of a set is required 
 #   - The script currently works only on EWF files
 # Changes:
+#   - 0.3: Consolidated size read to one function
 #   - 0.2: Added verification of data stored in EWF files
 # REQUIRES:
 #   - hashlib
