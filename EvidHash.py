@@ -124,11 +124,15 @@ def main():
                        format='%b %d, %Y %H:%M:%S')
         print("Script Starting..."+starttime)
         print("Collecting evidence container file info...")
+        # List of md5sums for the segments:
         md_list = getHash(flist)
+        # List of the sizes for the segments:
         sz_list = getSize(flist)
         print("Collecting EWF info...")
+        # Get the stored hash and media size:
         ewf_stor_hash,ewf_sz = getewf_Info(flist)    
         print("\nCalculating the hash of the data...")
+        # Calculate the hash of the data in the EWF files:
         ewf_data_hash = calcewf_Hash(flist, ewf_sz)
         endtime = datetime.strftime(datetime.now(),\
                        format='%b %d, %Y %H:%M:%S')
@@ -144,6 +148,7 @@ def main():
         print("EWF stored media size: ", ewf_sz, "bytes")
         print("\nEWF stored MD5 hash:\t ", ewf_stor_hash)
         print("EWF data MD5 hash:\t ", ewf_data_hash)
+        # Hash comparison:
         if ewf_stor_hash == ewf_data_hash:
             print(colored("Hash Match:  EWF files VERIFIED","green"))
         else:
