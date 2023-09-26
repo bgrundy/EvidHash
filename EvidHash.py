@@ -10,6 +10,7 @@
 #   - Only the first file of a set is required 
 #   - The script currently works only on EWF files
 # Changes:
+#   - 0.4: Added SHA1 to data hash calc
 #   - 0.3: Consolidated size read to one function
 #   - 0.2: Added verification of data stored in EWF files
 # REQUIRES:
@@ -18,7 +19,7 @@
 #   - tqdm (for progress bar)
 #   - termcolor (for verification message)
 
-Version = "0.3"
+Version = "0.4"
 
 #####################################
 #  Module imports                   #
@@ -92,13 +93,14 @@ def calcewf_Hash(flist, sz):
         data=[evid_obj.read(sz)]
         # Hash the data from the EWF files:
         for data in tqdm(data):
-            data_hash=hashlib.md5(data).hexdigest()
+            data_hash_MD5=hashlib.md5(data).hexdigest()
+            data_hash_SHA1=hashlib.sha1(data).hexdigest()
         # Close the EWF files:
         evid_obj.close()
     except:
         print("Unable to parse EWF files...")
         sys.exit(1)
-    return data_hash
+    return data_hash_MD5, data_hash_SHA1
 
 ################################################################################
 #   Main Program                                                               #
@@ -133,7 +135,7 @@ def main():
         ewf_stor_hash,ewf_sz = getewf_Info(flist)    
         print("\nCalculating the hash of the data...")
         # Calculate the hash of the data in the EWF files:
-        ewf_data_hash = calcewf_Hash(flist, ewf_sz)
+        ewf_data_hash_md, ewf_data_hash_sha = calcewf_Hash(flist, ewf_sz)
         endtime = datetime.strftime(datetime.now(),\
                        format='%b %d, %Y %H:%M:%S')
         # Print the output:
@@ -147,9 +149,10 @@ def main():
             print('\t',size,"bytes")
         print("EWF stored media size: ", ewf_sz, "bytes")
         print("\nEWF stored MD5 hash:\t ", ewf_stor_hash)
-        print("EWF data MD5 hash:\t ", ewf_data_hash)
+        print("EWF data MD5 hash:\t ", ewf_data_hash_md)
+        print("EWF data SHA1 hash:\t ", ewf_data_hash_sha)
         # Hash comparison:
-        if ewf_stor_hash == ewf_data_hash:
+        if ewf_stor_hash == ewf_data_hash_md:
             print(colored("Hash Match:  EWF files VERIFIED","green"))
         else:
             print(colored("HASH MISMATCH: Data error or corruption!",
